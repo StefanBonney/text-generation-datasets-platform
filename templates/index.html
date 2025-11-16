@@ -1,0 +1,48 @@
+<!-- templates/index.html -->
+
+{% extends "layout.html" %}
+
+{% block title %}Datasets{% endblock %}
+
+{% block content %}
+
+<h2>All Datasets</h2>
+
+{% for message in get_flashed_messages() %}
+<p class="info">{{ message }}</p>
+{% endfor %}
+
+{% for dataset in datasets %}
+<div class="dataset">
+  <p><a href="/dataset/{{ dataset.id }}">{{ dataset.title }}</a></p>
+  <p>
+    {{ dataset.total }} lines, last updated {{ dataset.last }}<br>
+    By: <a href="/user/{{ dataset.user_id }}">{{ dataset.username }}</a>
+  </p>
+</div>
+{% endfor %}
+
+<p class="page-nav">
+  <a href="/{{ page - 1 }}">&lt;&lt;</a>
+  Page {{ page }}/{{ page_count }}
+  <a href="/{{ page + 1 }}">&gt;&gt;</a>
+</p>
+
+{% if session.user_id %}
+<h3>Create New Dataset</h3>
+
+<form action="/new_dataset" method="post">
+  <p>
+    <label for="title">Name</label>:<br />
+    <input type="text" id="title" name="title" maxlength="100" required />
+  </p>
+  <p>
+    <label for="description">Description</label>:<br />
+    <textarea id="description" name="description" rows="3" cols="40" maxlength="5000"></textarea>
+  </p>
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+  <input type="submit" value="Create Dataset" />
+</form>
+{% endif %}
+
+{% endblock %}

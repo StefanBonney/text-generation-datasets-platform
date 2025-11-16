@@ -1,0 +1,37 @@
+<!-- templates/search.html -->
+
+{% extends "layout.html" %}
+
+{% block title %}Search{% endblock%}
+
+{% block content %}
+
+<h2>Search</h2>
+
+<form action="/search" method="get">
+  <p>
+    <label for="query">Search term</label>:
+    {% if query %}
+    <input type="text" id="query" name="query" value="{{ query }}" />
+    {% else %}
+    <input type="text" id="query" name="query" />
+    {% endif %}
+  </p>
+  <input type="submit" value="Search" />
+</form>
+
+{% if query %}
+<h3>Results</h3>
+
+<ul>
+{% for result in results %}
+  <li>
+    <a href="/dataset/{{ result.dataset_id }}">{{ result.title }}</a>
+    <br />
+    {{ result.username }} ({{ result.created_at }})
+  </li>  
+{% endfor %}
+</ul>
+{% endif %}
+
+{% endblock %}

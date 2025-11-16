@@ -1,0 +1,28 @@
+<!-- templates/users/add_image.html -->
+
+{% extends "layout.html" %}
+
+{% block title %}Add Profile Image{% endblock %}
+
+{% block content %}
+
+<h2>Add Profile Image</h2>
+
+<p>
+  Upload a jpg file, maximum 100 KB
+</p>
+
+{% for message in get_flashed_messages() %}
+<p class="info">{{ message }}</p>
+{% endfor %}
+
+<form action="/add_image" method="post" enctype="multipart/form-data">
+  <p>
+    <label for="image">Image:</label>
+    <input type="file" id="image" name="image" accept=".jpg" />
+  </p>
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+  <input type="submit" value="Upload" />
+</form>
+
+{% endblock %}

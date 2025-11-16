@@ -1,0 +1,31 @@
+<!-- templates/datasets/subset.html -->
+
+{% extends "layout.html" %}
+
+{% block title %}Subset: {{ dataset.title }}{% endblock %}
+
+{% block content %}
+
+<h2>Subset: {{ dataset.title }}</h2>
+<p><a href="/dataset/{{ dataset.id }}">Back to full dataset</a></p>
+
+<div class="info">
+  <strong>Subset Configuration:</strong><br>
+  Filters: {{ filter_description }}<br>
+  Showing: {{ lines|length }} lines
+</div>
+
+<p>
+  <a href="/download/{{ dataset.id }}?alphanumeric_only={{ '1' if filters.alphanumeric_only else '' }}&no_special_chars={{ '1' if filters.no_special_chars else '' }}&length_filter={{ filters.length_filter }}&random={{ '1' if filters.random else '' }}&limit={{ limit }}">
+    Download this subset ({{ lines|length }} lines)
+  </a>
+</p>
+
+<h3>Subset Contents</h3>
+<div style="background-color: #f5f5f5; padding: 1em; border: 1px solid #ccc; font-family: monospace; white-space: pre-wrap; max-height: 600px; overflow-y: auto;">
+{%- for line in lines -%}
+{{ line.content }}
+{% endfor -%}
+</div>
+
+{% endblock %}

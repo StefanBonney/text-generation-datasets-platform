@@ -1,0 +1,22 @@
+<!-- templates/datasets/edit.html -->
+
+{% extends "layout.html" %}
+{% block title %}Edit Dataset{% endblock %}
+{% block content %}
+
+<h2>Edit Dataset</h2>
+
+<form action="/edit_dataset/{{ dataset.id }}" method="post">
+  <p>
+    <label for="title">Name</label>:<br />
+    <input type="text" id="title" name="title" value="{{ dataset.title }}" maxlength="100" required />
+  </p>
+  <p>
+    <label for="description">Description</label>:<br />
+    <textarea id="description" name="description" rows="5" cols="40" maxlength="5000">{{ dataset.description }}</textarea>
+  </p>
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+  <input type="submit" value="Save" />
+</form>
+
+{% endblock %}

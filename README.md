@@ -24,3 +24,68 @@ The Text Generation Datasets Platform is designed for users to **share and modif
 - Users can add **links to projects** that use the dataset (URL + title).
 
 In this application, the primary data object is a dataset, and the secondary data objects are comments and project links that complement the dataset.
+
+### Development Progress and Testing Guidance
+
+#### Implemented Features
+
+- User registration and authentication
+- Create and manage datasets (collections of text lines)
+- Bulk add text lines (paste multiple lines at once)
+- Advanced filtering: alphanumeric only, no special chars, length-based, random sampling
+- Download full datasets or filtered subsets
+- Search datasets by keyword
+- View dataset statistics (line count, length distribution, etc.)
+
+#### Testing
+
+After seeding the database, login with a test user:
+- **Usernames:** `user1`, `user2`, or `user3`
+- **Password:** `password123`
+
+Test the application:
+1. Login (e.g., `user1` / `password123`)
+2. Browse the home page to see all datasets
+3. Click on a dataset you created (look for your username) to view/edit it
+4. Add more text lines using the bulk paste feature
+5. View dataset statistics (line counts, length distribution)
+6. Create filtered subsets using the subset form
+7. Download full or filtered datasets as .txt files
+8. Edit or delete your own datasets
+9. Search for datasets by keyword
+10. View other users' datasets (you can view but not edit)
+
+Or create your own account via `/register`.
+
+###  Setup Instructions
+
+#### Requirements
+
+- Python 3.x
+- Flask
+- SQLite3
+
+#### Running the Application
+
+1. Install dependencies:
+```
+pip install flask
+```
+
+2. Initialize the database:
+```
+# Delete old database if exists
+# del database.db 
+sqlite3 database.db < schema.sql
+```
+
+3. (Optional) Seed with test data:
+```
+python scripts/seed.py
+```
+
+4. Run the application:
+```
+flask run
+```
+5. Open browser to `http://127.0.0.1:5000`

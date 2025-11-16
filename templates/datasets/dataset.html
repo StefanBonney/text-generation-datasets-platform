@@ -1,0 +1,124 @@
+<!-- templates/datasets/dataset.html -->
+
+{% extends "layout.html" %}
+
+{% block title %}{{ dataset.title }}{% endblock %}
+
+{% block content %}
+
+<h2>{{ dataset.title }}</h2>
+<p><em>{{ dataset.description }}</em></p>
+<p>
+  Created by: <a href="/user/{{ dataset.user_id }}">User #{{ dataset.user_id }}</a> 
+  on {{ dataset.created_at }}
+</p>
+
+{% if stats %}
+<div class="info">
+  <strong>Dataset Statistics:</strong><br>
+  Total lines: {{ stats.total_lines }} | 
+  Avg length: {{ "%.1f"|format(stats.avg_length) }} chars | 
+  Range: {{ stats.min_length }}-{{ stats.max_length }} chars<br>
+  Alphanumeric only: {{ stats.alphanumeric_count }} | 
+  Short (&lt;20): {{ stats.short_count }} | 
+  Medium (20-50): {{ stats.medium_count }} | 
+  Long (&gt;50): {{ stats.long_count }}
+</div>
+{% endif %}
+
+<h3>Preview (first {{ [lines|length, 20]|min }} lines)</h3>
+<div style="background-color: #f5f5f5; padding: 1em; border: 1px solid #ccc; font-family: monospace; white-space: pre-wrap; max-height: 400px; overflow-y: auto;">
+{%- for line in lines[:20] -%}
+{{ line.content }}
+{% endfor -%}
+{%- if lines|length > 20 -%}
+... ({{ lines|length - 20 }} more lines)
+{% endif -%}
+</div>
+
+{% if session.user_id and session.user_id == dataset.user_id %}
+<h3>Manage Dataset</h3>
+<p>
+  <a href="/edit_dataset/{{ dataset.id }}">Edit description</a> | 
+  <a href="/delete_dataset/{{ dataset.id }}">Delete dataset</a>
+</p>
+
+<h3>Add Lines to Dataset</h3>
+<form action="/add_lines" method="post">
+  <p>
+    <label for="content">Paste text lines (one per line):</label><br />
+    <textarea id="content" name="content" rows="10" cols="80" 
+              placeholder="e.g.&#10;numpy&#10;tensorflow&#10;pandas&#10;flask&#10;requests"></textarea>
+  </p>
+  <input type="hidden" name="dataset_id" value="{{ dataset.id }}" />
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+  <input type="submit" value="Add Lines" />
+</form>
+{% endif %}
+
+
+<h3>Create Subset</h3>
+<p>Select filtering criteria and size to create a custom subset of this dataset:</p>
+
+<form action="/subset/{{ dataset.id }}" method="get" style="background-color: #f0f0f0; padding: 1em; border: 1px solid #ccc;">
+  
+  <fieldset style="margin-bottom: 1em;">
+    <legend>Character filters (can combine multiple):</legend>
+    <label>
+      <input type="checkbox" name="alphanumeric_only" value="1">
+      Alphanumeric only (letters, numbers, spaces)
+    </label><br>
+    <label>
+      <input type="checkbox" name="no_special_chars" value="1">
+      No special characters (letters, numbers, _, -)
+    </label>
+  </fieldset>
+
+  <fieldset style="margin-bottom: 1em;">
+    <legend>Length filter (choose one):</legend>
+    <label>
+      <input type="radio" name="length_filter" value="" checked>
+      Any length
+    </label><br>
+    <label>
+      <input type="radio" name="length_filter" value="short">
+      Short (under 20 chars) {% if stats %}({{ stats.short_count }} lines){% endif %}
+    </label><br>
+    <label>
+      <input type="radio" name="length_filter" value="medium">
+      Medium (20-50 chars) {% if stats %}({{ stats.medium_count }} lines){% endif %}
+    </label><br>
+    <label>
+      <input type="radio" name="length_filter" value="long">
+      Long (over 50 chars) {% if stats %}({{ stats.long_count }} lines){% endif %}
+    </label>
+  </fieldset>
+
+  <fieldset style="margin-bottom: 1em;">
+    <legend>Ordering:</legend>
+    <label>
+      <input type="checkbox" name="random" value="1">
+      Random order (instead of original order)
+    </label>
+  </fieldset>
+
+  <p>
+    <label for="limit">Number of lines:</label><br>
+    <input type="number" id="limit" name="limit" value="100" min="1" max="10000" />
+  </p>
+  
+  <input type="submit" value="View Subset" />
+</form>
+
+<h3>Quick Downloads</h3>
+<p>
+  <a href="/download/{{ dataset.id }}">Download full dataset</a> |
+  <a href="/download/{{ dataset.id }}?limit=100">First 100</a> |
+  <a href="/download/{{ dataset.id }}?limit=1000">First 1000</a> |
+  <a href="/download/{{ dataset.id }}?filter=random&random=1&limit=500">Random 500</a> |
+  <a href="/download/{{ dataset.id }}?no_special_chars=1">Clean lines only</a>
+</p>
+
+
+
+{% endblock %}
