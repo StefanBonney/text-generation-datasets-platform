@@ -15,6 +15,7 @@
 {% for dataset in datasets %}
 <div class="dataset">
   <p><a href="/dataset/{{ dataset.id }}">{{ dataset.title }}</a></p>
+  <p><em>{{ dataset.description|show_lines }}</em></p>
   <p>
     {{ dataset.total }} lines, last updated {{ dataset.last }}<br>
     By: <a href="/user/{{ dataset.user_id }}">{{ dataset.username }}</a>
@@ -27,5 +28,6 @@
   Page {{ page }}/{{ page_count }}
   <a href="/{{ page + 1 }}">&gt;&gt;</a>
 </p>
+
 
 {% endblock %}
