@@ -226,7 +226,7 @@ def register():
         try:
             users.create_user(username, password1)
             flash("Account created successfully, you can now log in")
-            return redirect("/")
+            return redirect("/login")
         except sqlite3.IntegrityError:
             flash("ERROR: Username already taken")
             filled = {"username": username}
