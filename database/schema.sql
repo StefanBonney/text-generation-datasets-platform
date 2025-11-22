@@ -1,4 +1,4 @@
--- schema.sql
+-- database/schema.sql
 
 CREATE TABLE users (
     id INTEGER PRIMARY KEY,

@@ -13,7 +13,7 @@
   on {{ dataset.created_at }}
 </p>
 
-{% if stats %}
+{% if stats and stats.total_lines > 0 %}
 <div class="info">
   <strong>Dataset Statistics:</strong><br>
   Total lines: {{ stats.total_lines }} | 
@@ -23,6 +23,10 @@
   Short (&lt;20): {{ stats.short_count }} | 
   Medium (20-50): {{ stats.medium_count }} | 
   Long (&gt;50): {{ stats.long_count }}
+</div>
+{% else %}
+<div class="info">
+  <strong>This dataset is empty.</strong> Add lines below to get started.
 </div>
 {% endif %}
 

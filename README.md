@@ -76,7 +76,7 @@ pip install flask
 ```
 # Delete old database if exists
 # del database.db 
-sqlite3 database.db < schema.sql
+sqlite3 database/database.db < database/schema.sql
 ```
 
 3. (Optional) Seed with test data:

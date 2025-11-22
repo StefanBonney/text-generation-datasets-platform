@@ -4,7 +4,8 @@ import math, secrets, sqlite3
 from flask import Flask
 from flask import abort, flash, make_response, redirect, render_template, request, session
 import markupsafe
-import config, datasets, users
+import config
+from queries import datasets, users
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -15,6 +16,9 @@ def show_lines(content):
     content = content.replace("\n", "<br />")
     return markupsafe.Markup(content)
 
+
+# ========================================================== [HELPER FUNCTIONS]
+
 def require_login():
     if "user_id" not in session:
         abort(403)
@@ -22,6 +26,9 @@ def require_login():
 def check_csrf():
     if request.form["csrf_token"] != session["csrf_token"]:
         abort(403)
+
+
+# ========================================================== [GENERAL ROUTES]
 
 @app.route("/")
 @app.route("/<int:page>")
@@ -45,13 +52,26 @@ def search():
     results = datasets.search(query) if query else []
     return render_template("search.html", query=query, results=results)
 
-@app.route("/user/<int:user_id>")
-def show_user(user_id):
-    user = users.get_user(user_id)
-    if not user:
-        abort(404)
-    user_datasets = users.get_datasets(user_id)
-    return render_template("users/user.html", user=user, datasets=user_datasets)
+# ========================================================== [DATASET ROUTES]
+
+@app.route("/new_dataset", methods=["GET", "POST"])
+def new_dataset():
+    require_login()
+    
+    if request.method == "GET":
+        return render_template("datasets/new.html")
+    
+    if request.method == "POST":
+        check_csrf()
+
+        title = request.form["title"]
+        description = request.form.get("description", "")
+        if not title or len(title) > 100 or len(description) > 5000:
+            abort(403)
+        user_id = session["user_id"]
+
+        dataset_id = datasets.add_dataset(title, description, user_id)
+        return redirect("/dataset/" + str(dataset_id))
 
 @app.route("/dataset/<int:dataset_id>")
 def show_dataset(dataset_id):
@@ -61,44 +81,6 @@ def show_dataset(dataset_id):
     lines = datasets.get_lines(dataset_id)
     stats = datasets.get_dataset_stats(dataset_id)
     return render_template("datasets/dataset.html", dataset=dataset, lines=lines, stats=stats)
-
-@app.route("/new_dataset", methods=["POST"])
-def new_dataset():
-    check_csrf()
-    require_login()
-
-    title = request.form["title"]
-    description = request.form.get("description", "")
-    if not title or len(title) > 100 or len(description) > 5000:
-        abort(403)
-    user_id = session["user_id"]
-
-    dataset_id = datasets.add_dataset(title, description, user_id)
-    return redirect("/dataset/" + str(dataset_id))
-
-@app.route("/add_lines", methods=["POST"])
-def add_lines():
-    check_csrf()
-    require_login()
-    
-    content = request.form["content"]
-    dataset_id = request.form["dataset_id"]
-    user_id = session["user_id"]
-    
-    dataset = datasets.get_dataset(dataset_id)
-    if not dataset or dataset["user_id"] != user_id:
-        abort(403)
-    
-    lines = content.strip().split("\n")
-    added_count = 0
-    for line in lines:
-        line = line.strip()
-        if line:
-            datasets.add_line(line, user_id, dataset_id)
-            added_count += 1
-    
-    flash(f"Added {added_count} lines to dataset")
-    return redirect("/dataset/" + str(dataset_id))
 
 @app.route("/edit_dataset/<int:dataset_id>", methods=["GET", "POST"])
 def edit_dataset(dataset_id):
@@ -139,6 +121,62 @@ def delete_dataset(dataset_id):
             flash("Dataset deleted")
         return redirect("/")
 
+@app.route("/add_lines", methods=["POST"])
+def add_lines():
+    check_csrf()
+    require_login()
+    
+    content = request.form["content"]
+    dataset_id = request.form["dataset_id"]
+    user_id = session["user_id"]
+    
+    dataset = datasets.get_dataset(dataset_id)
+    if not dataset or dataset["user_id"] != user_id:
+        abort(403)
+    
+    lines = content.strip().split("\n")
+    added_count = 0
+    for line in lines:
+        line = line.strip()
+        if line:
+            datasets.add_line(line, user_id, dataset_id)
+            added_count += 1
+    
+    flash(f"Added {added_count} lines to dataset")
+    return redirect("/dataset/" + str(dataset_id))
+
+@app.route("/subset/<int:dataset_id>")
+def view_subset(dataset_id):
+    dataset = datasets.get_dataset(dataset_id)
+    if not dataset:
+        abort(404)
+    
+    filters = {
+        'alphanumeric_only': request.args.get('alphanumeric_only') == '1',
+        'no_special_chars': request.args.get('no_special_chars') == '1',
+        'length_filter': request.args.get('length_filter', ''),
+        'random': request.args.get('random') == '1'
+    }
+    limit = request.args.get("limit", type=int, default=100)
+    
+    lines = datasets.get_lines_filtered(dataset_id, filters, limit)
+    stats = datasets.get_dataset_stats(dataset_id)
+    
+    filter_desc = []
+    if filters['alphanumeric_only']:
+        filter_desc.append('alphanumeric only')
+    if filters['no_special_chars']:
+        filter_desc.append('no special chars')
+    if filters['length_filter']:
+        filter_desc.append(filters['length_filter'] + ' length')
+    if filters['random']:
+        filter_desc.append('random order')
+    filter_description = ', '.join(filter_desc) if filter_desc else 'no filters'
+    
+    return render_template("datasets/subset.html", dataset=dataset, lines=lines, 
+                         filters=filters, limit=limit, stats=stats,
+                         filter_description=filter_description)
+
 @app.route("/download/<int:dataset_id>")
 def download_dataset(dataset_id):
     dataset = datasets.get_dataset(dataset_id)
@@ -174,37 +212,17 @@ def download_dataset(dataset_id):
     response.headers["Content-Disposition"] = f"attachment; filename={filename}" # Triggers browser download of filtered dataset as .txt file
     return response
 
-@app.route("/subset/<int:dataset_id>")
-def view_subset(dataset_id):
-    dataset = datasets.get_dataset(dataset_id)
-    if not dataset:
+
+# ========================================================== [USER ROUTES]
+
+
+@app.route("/user/<int:user_id>")
+def show_user(user_id):
+    user = users.get_user(user_id)
+    if not user:
         abort(404)
-    
-    filters = {
-        'alphanumeric_only': request.args.get('alphanumeric_only') == '1',
-        'no_special_chars': request.args.get('no_special_chars') == '1',
-        'length_filter': request.args.get('length_filter', ''),
-        'random': request.args.get('random') == '1'
-    }
-    limit = request.args.get("limit", type=int, default=100)
-    
-    lines = datasets.get_lines_filtered(dataset_id, filters, limit)
-    stats = datasets.get_dataset_stats(dataset_id)
-    
-    filter_desc = []
-    if filters['alphanumeric_only']:
-        filter_desc.append('alphanumeric only')
-    if filters['no_special_chars']:
-        filter_desc.append('no special chars')
-    if filters['length_filter']:
-        filter_desc.append(filters['length_filter'] + ' length')
-    if filters['random']:
-        filter_desc.append('random order')
-    filter_description = ', '.join(filter_desc) if filter_desc else 'no filters'
-    
-    return render_template("datasets/subset.html", dataset=dataset, lines=lines, 
-                         filters=filters, limit=limit, stats=stats,
-                         filter_description=filter_description)
+    user_datasets = users.get_datasets(user_id)
+    return render_template("users/user.html", user=user, datasets=user_datasets)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -292,3 +310,13 @@ def show_image(user_id):
     response = make_response(bytes(image))
     response.headers.set("Content-Type", "image/jpeg")
     return response
+
+
+
+
+
+
+
+
+
+

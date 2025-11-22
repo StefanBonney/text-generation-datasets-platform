@@ -1,6 +1,6 @@
-# datasets.py
+# queries/datasets.py
 
-import db
+from database import db
 
 def dataset_count():
     sql = "SELECT COUNT(*) FROM datasets"

@@ -4,7 +4,7 @@ import random
 import sqlite3
 from werkzeug.security import generate_password_hash
 
-db = sqlite3.connect("database.db")
+db = sqlite3.connect("database/database.db")
 
 db.execute("DELETE FROM users")
 db.execute("DELETE FROM datasets")

@@ -1,7 +1,7 @@
-# users.py
+# queries/users.py
 
 from werkzeug.security import check_password_hash, generate_password_hash
-import db
+from database import db
 
 def create_user(username, password):
     password_hash = generate_password_hash(password)

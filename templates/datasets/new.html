@@ -1,0 +1,28 @@
+<!-- templates/datasets/new.html -->
+
+{% extends "layout.html" %}
+
+{% block title %}Create New Dataset{% endblock %}
+
+{% block content %}
+
+<h2>Create New Dataset</h2>
+
+{% for message in get_flashed_messages() %}
+<p class="info">{{ message }}</p>
+{% endfor %}
+
+<form action="/new_dataset" method="post">
+  <p>
+    <label for="title">Name</label>:<br />
+    <input type="text" id="title" name="title" maxlength="100" required />
+  </p>
+  <p>
+    <label for="description">Description</label>:<br />
+    <textarea id="description" name="description" rows="5" cols="60" maxlength="5000" placeholder="Describe what this dataset contains and what it's useful for..."></textarea>
+  </p>
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+  <input type="submit" value="Create Dataset" />
+</form>
+
+{% endblock %}

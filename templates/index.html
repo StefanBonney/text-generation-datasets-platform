@@ -28,21 +28,4 @@
   <a href="/{{ page + 1 }}">&gt;&gt;</a>
 </p>
 
-{% if session.user_id %}
-<h3>Create New Dataset</h3>
-
-<form action="/new_dataset" method="post">
-  <p>
-    <label for="title">Name</label>:<br />
-    <input type="text" id="title" name="title" maxlength="100" required />
-  </p>
-  <p>
-    <label for="description">Description</label>:<br />
-    <textarea id="description" name="description" rows="3" cols="40" maxlength="5000"></textarea>
-  </p>
-  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
-  <input type="submit" value="Create Dataset" />
-</form>
-{% endif %}
-
 {% endblock %}
