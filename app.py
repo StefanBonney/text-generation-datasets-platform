@@ -222,7 +222,8 @@ def show_user(user_id):
     if not user:
         abort(404)
     user_datasets = users.get_datasets(user_id)
-    return render_template("users/user.html", user=user, datasets=user_datasets)
+    stats = users.get_user_statistics(user_id)
+    return render_template("users/user.html", user=user, datasets=user_datasets, stats=stats)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():

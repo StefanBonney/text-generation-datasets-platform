@@ -43,3 +43,26 @@ def get_image(user_id):
     sql = "SELECT image FROM users WHERE id = ?"
     result = db.query(sql, [user_id])
     return result[0][0] if result else None
+
+def get_user_statistics(user_id):
+    """
+    Get statistics for user page
+    """
+    sql = """SELECT 
+                COUNT(DISTINCT d.id) as dataset_count,
+                COUNT(DISTINCT dl.id) as line_count,
+                CAST(COUNT(DISTINCT dl.id) AS FLOAT) / NULLIF(COUNT(DISTINCT d.id), 0) as avg_lines_per_dataset,
+                MIN(d.created_at) as first_dataset_date,
+                MAX(dl.added_at) as last_activity_date,
+                (SELECT d2.title 
+                 FROM dataset_lines dl2
+                 JOIN datasets d2 ON dl2.dataset_id = d2.id
+                 WHERE dl2.user_id = ?
+                 ORDER BY dl2.added_at DESC
+                 LIMIT 1) as last_modified_dataset_title
+             FROM users u
+             LEFT JOIN datasets d ON u.id = d.user_id
+             LEFT JOIN dataset_lines dl ON u.id = dl.user_id
+             WHERE u.id = ?"""
+    result = db.query(sql, [user_id, user_id])
+    return result[0] if result else None

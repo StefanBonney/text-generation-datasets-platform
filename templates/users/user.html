@@ -22,9 +22,22 @@
 </p>
 {% endif %}
 
-<p>
-  User has created {{ datasets | count }} datasets
-</p>
+{% if stats %}
+<div class="info">
+  <strong>Statistics:</strong><br>
+  Datasets created: {{ stats.dataset_count }}<br>
+  Lines contributed: {{ stats.line_count }}<br>
+  {% if stats.avg_lines_per_dataset %}
+  Average lines per dataset: {{ "%.1f"|format(stats.avg_lines_per_dataset) }}<br>
+  {% endif %}
+  {% if stats.first_dataset_date %}
+  Member since: {{ stats.first_dataset_date[:10] }}<br>
+  {% endif %}
+  {% if stats.last_activity_date and stats.last_modified_dataset_title %}
+  Last modified dataset: {{ stats.last_modified_dataset_title }} ({{ stats.last_activity_date[:10] }})
+  {% endif %}
+</div>
+{% endif %}
 
 <h3>Datasets</h3>
 
