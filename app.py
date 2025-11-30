@@ -86,7 +86,8 @@ def new_dataset():
     require_login()
 
     if request.method == "GET":
-        return render_template("datasets/new.html")
+        all_tags = datasets.get_all_tags()
+        return render_template("datasets/new.html", all_tags=all_tags)
 
     if request.method == "POST":
         check_csrf()
