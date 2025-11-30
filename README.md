@@ -97,6 +97,7 @@ Test the application, submission 3:
    - Logout and verify tags are visible but no modification controls appear
 
 2. **Comments:**
+   - Login as `user1`
    - Post a comment on any dataset (yours or others')
    - Verify comment appears with your username and timestamp
    - Delete your own comment
@@ -105,11 +106,10 @@ Test the application, submission 3:
    - Logout and verify comments are visible but posting is disabled
 
 3. **User Statistics:**
+   - Login as `user1`
    - Click "Profile" in navbar to view your user page
    - Verify statistics display: datasets created, lines contributed, average lines per dataset
-   - Add lines to a dataset, refresh profile - verify "Last modified dataset" updates
-   - Post comments, refresh profile - verify statistics update
-
+   - Add lines to a dataset, refresh profile, verify statistics update
 
 ###  Setup Instructions
 
