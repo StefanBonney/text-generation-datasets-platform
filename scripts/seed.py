@@ -9,6 +9,8 @@ db = sqlite3.connect("database/database.db")
 db.execute("DELETE FROM users")
 db.execute("DELETE FROM datasets")
 db.execute("DELETE FROM dataset_lines")
+db.execute("DELETE FROM tags")          
+db.execute("DELETE FROM dataset_tags")  
 
 user_count = 3
 dataset_count = 20
@@ -52,10 +54,35 @@ for i in range(1, line_count + 1):
                   VALUES (?, datetime('now'), ?, ?)""",
                [content, user_id, dataset_id])
 
+tags = [
+    "Package Names",
+    "Variable Names", 
+    "API Endpoints",
+    "Function Names",
+    "Product Names",
+    "Repository Names"
+]
+
+for tag in tags:
+    db.execute("INSERT INTO tags (name) VALUES (?)", [tag])
+
+# Randomly assign tags to datasets
+for dataset_id in range(1, dataset_count + 1):
+    # Each dataset gets 1-3 random tags
+    num_tags = random.randint(1, 3)
+    selected_tags = random.sample(range(1, len(tags) + 1), num_tags)
+    for tag_id in selected_tags:
+        db.execute("INSERT INTO dataset_tags (dataset_id, tag_id) VALUES (?, ?)",
+                   [dataset_id, tag_id])
+
+
+
 db.commit()
 db.close()
 
 print(f"Created {user_count} users, {dataset_count} datasets, and {line_count} lines")
 print("Data includes varied lengths and character types for filter testing")
+print(f"Created {len(tags)} tags and assigned them randomly to datasets")
+
 print(f"\nTest users: user1, user2, user3")
 print("Password for all users: password123")

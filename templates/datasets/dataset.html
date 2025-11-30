@@ -6,6 +6,11 @@
 
 {% block content %}
 
+
+{% for message in get_flashed_messages() %}
+<p class="flash-message">{{ message }}</p>
+{% endfor %}
+
 <h2>{{ dataset.title }}</h2>
 <p><em>{{ dataset.description|show_lines }}</em></p>
 <p>
@@ -13,8 +18,40 @@
   on {{ dataset.created_at }}
 </p>
 
-{% if stats and stats.total_lines > 0 %}
 <div class="info">
+  <strong>Tags:</strong>
+  {% if tags %}
+    {% for tag in tags %}
+      <span class="tag">
+        {{ tag.name }}
+        {% if session.user_id == dataset.user_id %}
+        <form method="POST" action="/dataset/{{ dataset.id }}/remove_tag/{{ tag.id }}" style="display:inline;">
+          <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+          <button type="submit">×</button>
+        </form>
+        {% endif %}
+      </span>
+    {% endfor %}
+  {% else %}
+    <span>No tags yet</span>
+  {% endif %}
+
+  {% if session.user_id == dataset.user_id %}
+  <form method="POST" action="/dataset/{{ dataset.id }}/add_tag" style="display:inline; margin-left: 1em;">
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+    <select name="tag_id" required>
+      <option value="">Add a tag...</option>
+      {% for tag in all_tags %}
+        <option value="{{ tag.id }}">{{ tag.name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">+</button>
+  </form>
+  {% endif %}
+</div>
+
+{% if stats and stats.total_lines > 0 %}
+<div class="stats-box">
   <strong>Dataset Statistics:</strong><br>
   Total lines: {{ stats.total_lines }} | 
   Avg length: {{ "%.1f"|format(stats.avg_length) }} chars | 
@@ -31,7 +68,7 @@
 {% endif %}
 
 <h3>Preview (first {{ [lines|length, 20]|min }} lines)</h3>
-<div style="background-color: #f5f5f5; padding: 1em; border: 1px solid #ccc; font-family: monospace; white-space: pre-wrap; max-height: 400px; overflow-y: auto;">
+<div class="preview-box">
 {%- for line in lines[:20] -%}
 {{ line.content }}
 {% endfor -%}
@@ -124,5 +161,11 @@
 </p>
 
 
+</div> 
+
+<div class="comments-section">
+  <h3>Comments</h3>
+  {% include 'comments/comment_section.html' %}
+</div>
 
 {% endblock %}

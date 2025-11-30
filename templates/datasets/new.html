@@ -21,6 +21,17 @@
     <label for="description">Description</label>:<br />
     <textarea id="description" name="description" rows="5" cols="60" maxlength="5000" placeholder="Describe what this dataset contains and what it's useful for..."></textarea>
   </p>
+
+  <p>
+    <label>Tags (optional - select multiple):</label><br />
+    {% for tag in all_tags %}
+    <label style="display: inline-block; margin-right: 1em;">
+      <input type="checkbox" name="tag_ids" value="{{ tag.id }}">
+      {{ tag.name }}
+    </label>
+    {% endfor %}
+  </p>
+
   <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
   <input type="submit" value="Create Dataset" />
 </form>

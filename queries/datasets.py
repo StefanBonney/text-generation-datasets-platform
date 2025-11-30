@@ -2,6 +2,8 @@
 
 from database import db
 
+# ========================================================== [DATASET QUERIES]
+
 def dataset_count():
     sql = "SELECT COUNT(*) FROM datasets"
     return db.query(sql)[0][0]
@@ -26,6 +28,54 @@ def get_dataset(dataset_id):
     result = db.query(sql, [dataset_id])
     return result[0] if result else None
 
+def add_dataset(title, description, user_id):
+    sql = "INSERT INTO datasets (title, description, user_id) VALUES (?, ?, ?)"
+    db.execute(sql, [title, description, user_id])
+    return db.last_insert_id()
+
+def update_dataset(dataset_id, title, description):
+    sql = "UPDATE datasets SET title = ?, description = ? WHERE id = ?"
+    db.execute(sql, [title, description, dataset_id])
+
+def delete_dataset(dataset_id):
+    sql = "DELETE FROM dataset_lines WHERE dataset_id = ?"
+    db.execute(sql, [dataset_id])
+    sql = "DELETE FROM datasets WHERE id = ?"
+    db.execute(sql, [dataset_id])
+
+def get_dataset_stats(dataset_id):
+    """
+    Get statistics about the dataset
+    """
+    sql = """SELECT 
+                COUNT(*) as total_lines,
+                AVG(LENGTH(content)) as avg_length,
+                MIN(LENGTH(content)) as min_length,
+                MAX(LENGTH(content)) as max_length,
+                SUM(CASE WHEN content NOT GLOB '*[^a-zA-Z0-9 ]*' THEN 1 ELSE 0 END) as alphanumeric_count,
+                SUM(CASE WHEN LENGTH(content) < 20 THEN 1 ELSE 0 END) as short_count,
+                SUM(CASE WHEN LENGTH(content) BETWEEN 20 AND 50 THEN 1 ELSE 0 END) as medium_count,
+                SUM(CASE WHEN LENGTH(content) > 50 THEN 1 ELSE 0 END) as long_count
+             FROM dataset_lines
+             WHERE dataset_id = ?"""
+    result = db.query(sql, [dataset_id])
+    return result[0] if result else None
+
+def search(query):
+    sql = """SELECT d.id dataset_id,
+                    d.title,
+                    d.description,
+                    u.username,
+                    d.created_at
+             FROM datasets d, users u
+             WHERE d.user_id = u.id AND
+                   (d.title LIKE ? OR d.description LIKE ?)
+             ORDER BY d.created_at DESC"""
+    search_term = "%" + query + "%"
+    return db.query(sql, [search_term, search_term])
+
+# ========================================================== [LINE QUERIES]
+
 def get_lines(dataset_id):
     sql = """SELECT l.id, l.content, l.added_at, l.user_id, u.username
              FROM dataset_lines l, users u
@@ -38,25 +88,10 @@ def get_line(line_id):
     result = db.query(sql, [line_id])
     return result[0] if result else None
 
-def add_dataset(title, description, user_id):
-    sql = "INSERT INTO datasets (title, description, user_id) VALUES (?, ?, ?)"
-    db.execute(sql, [title, description, user_id])
-    return db.last_insert_id()
-
 def add_line(content, user_id, dataset_id):
     sql = """INSERT INTO dataset_lines (content, added_at, user_id, dataset_id) VALUES
              (?, datetime('now'), ?, ?)"""
     db.execute(sql, [content, user_id, dataset_id])
-
-def update_dataset(dataset_id, title, description):
-    sql = "UPDATE datasets SET title = ?, description = ? WHERE id = ?"
-    db.execute(sql, [title, description, dataset_id])
-
-def delete_dataset(dataset_id):
-    sql = "DELETE FROM dataset_lines WHERE dataset_id = ?"
-    db.execute(sql, [dataset_id])
-    sql = "DELETE FROM datasets WHERE id = ?"
-    db.execute(sql, [dataset_id])
 
 def get_lines_filtered(dataset_id, filters, limit=None):
     """
@@ -68,7 +103,6 @@ def get_lines_filtered(dataset_id, filters, limit=None):
         'random': True
     }
     """
-    
     base_sql = """SELECT l.id, l.content, l.added_at, l.user_id, u.username
                   FROM dataset_lines l, users u
                   WHERE l.user_id = u.id AND l.dataset_id = ?"""
@@ -97,31 +131,41 @@ def get_lines_filtered(dataset_id, filters, limit=None):
     
     return db.query(base_sql, [dataset_id])
 
-def get_dataset_stats(dataset_id):
-    """Get statistics about the dataset"""
-    sql = """SELECT 
-                COUNT(*) as total_lines,
-                AVG(LENGTH(content)) as avg_length,
-                MIN(LENGTH(content)) as min_length,
-                MAX(LENGTH(content)) as max_length,
-                SUM(CASE WHEN content NOT GLOB '*[^a-zA-Z0-9 ]*' THEN 1 ELSE 0 END) as alphanumeric_count,
-                SUM(CASE WHEN LENGTH(content) < 20 THEN 1 ELSE 0 END) as short_count,
-                SUM(CASE WHEN LENGTH(content) BETWEEN 20 AND 50 THEN 1 ELSE 0 END) as medium_count,
-                SUM(CASE WHEN LENGTH(content) > 50 THEN 1 ELSE 0 END) as long_count
-             FROM dataset_lines
-             WHERE dataset_id = ?"""
-    result = db.query(sql, [dataset_id])
-    return result[0] if result else None
 
-def search(query):
-    sql = """SELECT d.id dataset_id,
-                    d.title,
-                    d.description,
-                    u.username,
-                    d.created_at
-             FROM datasets d, users u
-             WHERE d.user_id = u.id AND
-                   (d.title LIKE ? OR d.description LIKE ?)
-             ORDER BY d.created_at DESC"""
-    search_term = "%" + query + "%"
-    return db.query(sql, [search_term, search_term])
+# ========================================================== [TAG QUERIES]
+
+def get_all_tags():
+    """
+    Get all available tags
+    """
+    from database import db
+    sql = "SELECT id, name FROM tags ORDER BY name"
+    return db.query(sql)
+
+def get_dataset_tags(dataset_id):
+    """
+    Get tags for a specific dataset
+    """
+    from database import db
+    sql = """SELECT t.id, t.name
+             FROM tags t
+             JOIN dataset_tags dt ON t.id = dt.tag_id
+             WHERE dt.dataset_id = ?
+             ORDER BY t.name"""
+    return db.query(sql, [dataset_id])
+
+def add_dataset_tag(dataset_id, tag_id):
+    """
+    Add a tag to a dataset (if not already present)
+    """
+    from database import db
+    sql = "INSERT OR IGNORE INTO dataset_tags (dataset_id, tag_id) VALUES (?, ?)"
+    db.execute(sql, [dataset_id, tag_id])
+
+def remove_dataset_tag(dataset_id, tag_id):
+    """
+    Remove a tag from a dataset
+    """
+    from database import db
+    sql = "DELETE FROM dataset_tags WHERE dataset_id = ? AND tag_id = ?"
+    db.execute(sql, [dataset_id, tag_id])

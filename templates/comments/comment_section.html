@@ -1,0 +1,36 @@
+<!-- templates/comments/comments_section.html -->
+
+<!-- Comment form (if logged in) -->
+{% if session.user_id %}
+<form method="POST" action="/dataset/{{ dataset.id }}/comment">
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+  <p>
+    <textarea name="content" rows="3" cols="80" maxlength="1000" 
+              placeholder="Add a comment..." required></textarea>
+  </p>
+  <button type="submit">Post Comment</button>
+</form>
+{% else %}
+<p><a href="/login">Log in</a> to comment</p>
+{% endif %}
+
+<!-- List of comments -->
+<div style="margin-top: 2em;">
+{% if comments %}
+  {% for comment in comments %}
+  <div class="comment">
+    <strong>{{ comment.username }}</strong> 
+    <em>({{ comment.created_at[:16] }})</em>
+    {% if session.user_id == comment.user_id or session.user_id == dataset.user_id %}
+    <form method="POST" action="/comment/{{ comment.id }}/delete" style="display:inline; float:right;">
+      <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+      <button type="submit" onclick="return confirm('Delete this comment?')">Delete</button>
+    </form>
+    {% endif %}
+    <p>{{ comment.content }}</p>
+  </div>
+  {% endfor %}
+{% else %}
+  <p><em>No comments yet. Add comment here.</em></p>
+{% endif %}
+</div>

@@ -29,6 +29,7 @@ In this application, the primary data object is a dataset, and the secondary dat
 
 #### Implemented Features
 
+Implemented features, submission 1 & 2:
 - User registration and authentication
 - Create and manage datasets (collections of text lines)
 - Bulk add text lines (paste multiple lines at once)
@@ -37,13 +38,42 @@ In this application, the primary data object is a dataset, and the secondary dat
 - Search datasets by keyword
 - View dataset statistics (line count, length distribution, etc.)
 
+Implemented features, submission 3:
+- **Tags/Classifications**: Users can categorize datasets with predefined tags (Package Names, Variable Names, API Endpoints, etc.)
+  - Dataset owners can add/remove multiple tags per dataset
+  - Tags can be selected during dataset creation
+  - Tags are visible to all users
+- **Comments**: Users can discuss datasets through comment threads
+  - Any logged-in user can comment on any dataset
+  - Comment authors can delete their own comments
+  - Dataset owners can moderate (delete) all comments on their datasets
+  - Comments display username and timestamp
+  - Comments are visible to all users
+- **Enhanced User Statistics**: User profile pages now show comprehensive statistics
+  - Datasets created, lines contributed, average lines per dataset
+  - Member since date
+  - Last modified dataset with timestamp
+
+#### Implemented Fixes
+
+Implemented fixes, submission 3:
+- Redirect users to login page after registration (previously went to home)
+- Hide register/login links from logged-in users in navigation
+- Add user profile link to navbar for easy access
+- Move dataset creation to dedicated page with navbar link (better UX than bottom-of-page form)
+- Fix dataset creation error for empty datasets
+- Preserve line breaks in dataset descriptions
+- Add description preview on home page dataset listings
+- Slight improvements to visual design
+
+
 #### Testing
 
 After seeding the database, login with a test user:
 - **Usernames:** `user1`, `user2`, or `user3`
 - **Password:** `password123`
 
-Test the application:
+Test the application, submission 1 & 2:
 1. Login (e.g., `user1` / `password123`)
 2. Browse the home page to see all datasets
 3. Click on a dataset you created (look for your username) to view/edit it
@@ -56,6 +86,30 @@ Test the application:
 10. View other users' datasets (you can view but not edit)
 
 Or create your own account via `/register`.
+
+Test the application, submission 3:
+1. **Tags/Classifications:**
+   - Login as `user1` and view a dataset you own
+   - Add tags using the dropdown (e.g., "Package Names", "Function Names")
+   - Remove tags using the × button
+   - Create a new dataset and select tags via checkboxes
+   - View another user's dataset - verify you can see tags but not modify them
+   - Logout and verify tags are visible but no modification controls appear
+
+2. **Comments:**
+   - Post a comment on any dataset (yours or others')
+   - Verify comment appears with your username and timestamp
+   - Delete your own comment
+   - On your own dataset, delete a comment from another user (moderation)
+   - On someone else's dataset, verify you cannot delete their comments
+   - Logout and verify comments are visible but posting is disabled
+
+3. **User Statistics:**
+   - Click "Profile" in navbar to view your user page
+   - Verify statistics display: datasets created, lines contributed, average lines per dataset
+   - Add lines to a dataset, refresh profile - verify "Last modified dataset" updates
+   - Post comments, refresh profile - verify statistics update
+
 
 ###  Setup Instructions
 

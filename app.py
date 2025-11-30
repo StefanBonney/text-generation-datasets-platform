@@ -5,7 +5,7 @@ from flask import Flask
 from flask import abort, flash, make_response, redirect, render_template, request, session
 import markupsafe
 import config
-from queries import datasets, users
+from queries import datasets, users, comments
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -64,13 +64,20 @@ def new_dataset():
     if request.method == "POST":
         check_csrf()
 
+        # create dataset with title, description, user_id 
         title = request.form["title"]
         description = request.form.get("description", "")
         if not title or len(title) > 100 or len(description) > 5000:
             abort(403)
         user_id = session["user_id"]
-
+        
         dataset_id = datasets.add_dataset(title, description, user_id)
+        
+        # add selected tags
+        selected_tag_ids = request.form.getlist("tag_ids") 
+        for tag_id in selected_tag_ids:
+            datasets.add_dataset_tag(dataset_id, tag_id)
+
         return redirect("/dataset/" + str(dataset_id))
 
 @app.route("/dataset/<int:dataset_id>")
@@ -80,7 +87,17 @@ def show_dataset(dataset_id):
         abort(404)
     lines = datasets.get_lines(dataset_id)
     stats = datasets.get_dataset_stats(dataset_id)
-    return render_template("datasets/dataset.html", dataset=dataset, lines=lines, stats=stats)
+    tags = datasets.get_dataset_tags(dataset_id)
+    all_tags = datasets.get_all_tags()
+    dataset_comments = comments.get_comments(dataset_id) 
+
+    return render_template("datasets/dataset.html", 
+                          dataset=dataset, 
+                          lines=lines, 
+                          stats=stats,
+                          tags=tags,
+                          all_tags=all_tags,
+                          comments=dataset_comments) 
 
 @app.route("/edit_dataset/<int:dataset_id>", methods=["GET", "POST"])
 def edit_dataset(dataset_id):
@@ -212,9 +229,78 @@ def download_dataset(dataset_id):
     response.headers["Content-Disposition"] = f"attachment; filename={filename}" # Triggers browser download of filtered dataset as .txt file
     return response
 
+# ========================================================== [TAG ROUTES]
+
+@app.route("/dataset/<int:dataset_id>/add_tag", methods=["POST"])
+def add_tag(dataset_id):
+    check_csrf()
+    require_login()
+    
+    dataset = datasets.get_dataset(dataset_id)
+    if not dataset or dataset["user_id"] != session["user_id"]:
+        abort(403)  # Only owner can add tags
+    
+    tag_id = request.form["tag_id"]
+    datasets.add_dataset_tag(dataset_id, tag_id)
+    
+    return redirect(f"/dataset/{dataset_id}")
+
+@app.route("/dataset/<int:dataset_id>/remove_tag/<int:tag_id>", methods=["POST"])
+def remove_tag(dataset_id, tag_id):
+    check_csrf()
+    require_login()
+    
+    dataset = datasets.get_dataset(dataset_id)
+    if not dataset or dataset["user_id"] != session["user_id"]:
+        abort(403)  # Only owner can remove tags
+    
+    datasets.remove_dataset_tag(dataset_id, tag_id)
+    
+    return redirect(f"/dataset/{dataset_id}")
+
+# ========================================================== [COMMENT ROUTES]
+
+@app.route("/dataset/<int:dataset_id>/comment", methods=["POST"])
+def add_comment_route(dataset_id):
+    check_csrf()
+    require_login()
+    
+    content = request.form["content"].strip()
+    if not content:
+        flash("Comment cannot be empty")
+        return redirect(f"/dataset/{dataset_id}")
+    
+    if len(content) > 1000:
+        flash("Comment too long (max 1000 characters)")
+        return redirect(f"/dataset/{dataset_id}")
+    
+    comments.add_comment(content, session["user_id"], dataset_id)
+    flash("Comment added")
+    
+    return redirect(f"/dataset/{dataset_id}")
+
+@app.route("/comment/<int:comment_id>/delete", methods=["POST"])
+def delete_comment_route(comment_id):
+    check_csrf()
+    require_login()
+
+    comment = comments.get_comment(comment_id)
+    
+    if not comment:
+        abort(404)
+    
+    # only comment author or dataset owner can delete
+    dataset = datasets.get_dataset(comment["dataset_id"])
+    if comment["user_id"] != session["user_id"] and dataset["user_id"] != session["user_id"]:
+        abort(403)
+    
+    comments.delete_comment(comment_id)
+    flash("Comment deleted")
+    
+    return redirect(f"/dataset/{comment['dataset_id']}")
+
 
 # ========================================================== [USER ROUTES]
-
 
 @app.route("/user/<int:user_id>")
 def show_user(user_id):
