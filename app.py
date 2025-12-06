@@ -421,7 +421,10 @@ def login():
         if user_id:
             session["user_id"] = user_id
             session["csrf_token"] = secrets.token_hex(16)
-            return redirect(next_page)
+            # Don't redirect to register/login pages
+            if next_page and '/register' not in next_page and '/login' not in next_page:
+                return redirect(next_page)
+            return redirect("/")  # Default to home
 
         flash("ERROR: Wrong username or password")
         return render_template("users/login.html", next_page=next_page)
