@@ -384,8 +384,9 @@ def register():
 
     if request.method == "POST":
         username = request.form["username"]
-        if not username or len(username) > 16:
-            abort(403)
+        if not username or not username.strip():
+            flash("ERROR: Username cannot be empty")
+            return render_template("users/register.html", filled={})
         password1 = request.form["password1"]
         password2 = request.form["password2"]
 
