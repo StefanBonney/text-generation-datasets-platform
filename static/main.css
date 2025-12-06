@@ -1,23 +1,27 @@
 /* static/main.css */
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+
+/* ========================================================== [LAYOUT] */
 body {
   margin: auto;
   max-width: 50em;
   font-family: sans-serif;
-  background-color: lightblue;
+  background-color: #FAF9F6;  
 }
 
 .header {
-  background-color: black;
-  color: red;
+  background-color: #FAF9F6;
   margin: 0.5em 0;
   padding: 1em;
+  text-align: center;
 }
 
-.nav {
-  background-color: lightgrey;
-  margin: 0.5em 0;
-  padding: 0.5em;
+.header img {
+  max-width: 500px;
+  height: auto;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .content {
@@ -28,8 +32,19 @@ body {
   border-radius: 8px;
 }
 
+/* ========================================================== [TYPOGRAPHY] */
+
 h1, h2 {
   margin: 0;
+}
+
+/* ========================================================== [NAVIGATION] */
+
+/* ========================================================== [NAVIGATION] */
+.nav {
+  background-color: #FAF9F6; 
+  margin: 0.5em 0;
+  padding: 0.5em;
 }
 
 nav {
@@ -43,27 +58,40 @@ nav ul {
 
 nav li {
   display: inline-block;
-  padding: 0 1em;
-  margin: 0;
+  padding: 0;  
+  margin: 0 0.3em;  
 }
 
 nav li:not(:first-of-type) {
-  margin-left: -0.25em;
+  margin-left: 0.3em;  
 }
 
 nav li:not(:last-of-type) {
-  border-right: 1px solid black;
+  border-right: none;  
 }
 
-.page-nav {
-  text-align: center;
+nav a {
+  display: inline-block;
+  padding: 0.5em 1em;
+  text-decoration: none;
+  color: black;
+  border-radius: 5px;
+  font-weight: bold; 
+  transition: background-color 0.2s ease;
 }
+
+nav a:hover {
+  background-color: #e8e8e8;
+}
+
+/* ========================================================== [CONTENT BOXES] */
 
 .line, .dataset {
   border: 1px solid #b1b1b1; 
   border-radius: 8px; 
   margin: 1em;
   padding: 0.2em 0.5em;
+  background-color: #f5f5f5; 
 }
 
 
@@ -96,6 +124,8 @@ nav li:not(:last-of-type) {
   overflow-y: auto;
 }
 
+/* ========================================================== [TAGS] */
+
 .tag {
   background-color: #e9e7e7;
   padding: 0.2em 0.5em;
@@ -114,6 +144,8 @@ nav li:not(:last-of-type) {
   font-weight: bold;
   margin-left: 0.3em;
 }
+
+/* ========================================================== [COMMENTS] */
 
 .comments-section {
   margin-top: 1em;
@@ -136,6 +168,8 @@ nav li:not(:last-of-type) {
   margin: 0.5em 0 0 0;
 }
 
+/* ========================================================== [FLASH MESSAGES] */
+
 .flash-success {
   border: 2px solid #4CAF50;
   border-radius: 8px;
@@ -154,4 +188,57 @@ nav li:not(:last-of-type) {
   background-color: #f8d7da;
   color: #721c24;
   font-weight: bold;
+}
+
+
+/* ========================================================== [BUTTONS] */
+
+button, input[type="submit"] {
+  background-color: #20262E;
+  color: white;
+  padding: 0.6em 1.0em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 600;
+  transition: box-shadow 0.2s ease;
+}
+
+button:hover, input[type="submit"]:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+button:active, input[type="submit"]:active {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* ========================================================== [FORMS] */
+
+/* Form input styling */
+input[type="text"], input[type="password"], textarea, select {
+  padding: 0.5em;
+  border: 2px solid #b1b1b1;
+  border-radius: 5px;
+  font-size: 1em;
+  font-family: sans-serif;
+  width: 100%;
+  max-width: 30em;
+  box-sizing: border-box;
+}
+
+input[type="text"]:focus, input[type="password"]:focus, 
+textarea:focus, select:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+textarea {
+  font-family: monospace;
+  resize: vertical;
+}
+
+/* Form spacing */
+form p {
+  margin: 0.8em 0;
 }
