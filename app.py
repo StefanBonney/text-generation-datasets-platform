@@ -401,7 +401,7 @@ def register():
         except sqlite3.IntegrityError:
             flash("ERROR: Username already taken")
             filled = {"username": username}
-            return render_template("register.html", filled=filled)
+            return render_template("users/register.html", filled=filled)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
