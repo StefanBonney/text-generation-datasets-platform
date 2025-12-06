@@ -121,25 +121,31 @@ Test the application, submission 3:
 
 #### Running the Application
 
-1. Install dependencies:
+1. Create and activate virtual environment:
+```
+python -m venv .venv
+.venv/bin/activate  # On Unix: source .venv/bin/activate
+```
+
+2. Install dependencies:
 ```
 pip install flask
 ```
 
-2. Initialize the database:
+3. Initialize the database:
 ```
 # Delete old database if exists
 # del database.db 
 sqlite3 database/database.db < database/schema.sql
 ```
 
-3. (Optional) Seed with test data:
+4. (Optional) Seed with test data:
 ```
 python scripts/seed.py
 ```
 
-4. Run the application:
+5. Run the application:
 ```
-flask run
+python -m flask run
 ```
-5. Open browser to `http://127.0.0.1:5000`
+6. Open browser to `http://127.0.0.1:5000`
