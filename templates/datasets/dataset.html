@@ -6,11 +6,6 @@
 
 {% block content %}
 
-
-{% for message in get_flashed_messages() %}
-<p class="flash-message">{{ message }}</p>
-{% endfor %}
-
 <h2>{{ dataset.title }}</h2>
 <p><em>{{ dataset.description|show_lines }}</em></p>
 <p>

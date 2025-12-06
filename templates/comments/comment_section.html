@@ -27,7 +27,7 @@
       <button type="submit" onclick="return confirm('Delete this comment?')">Delete</button>
     </form>
     {% endif %}
-    <p>{{ comment.content }}</p>
+    <p>{{ comment.content | show_lines }}</p>
   </div>
   {% endfor %}
 {% else %}

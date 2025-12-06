@@ -324,11 +324,11 @@ def add_comment(dataset_id):
 
     content = request.form["content"].strip()
     if not content:
-        flash("Comment cannot be empty")
+        flash("ERROR: Comment cannot be empty")
         return redirect(f"/dataset/{dataset_id}")
 
     if len(content) > 1000:
-        flash("Comment too long (max 1000 characters)")
+        flash("ERROR: Comment too long (max 1000 characters)")
         return redirect(f"/dataset/{dataset_id}")
 
     comments.add_comment(content, session["user_id"], dataset_id)

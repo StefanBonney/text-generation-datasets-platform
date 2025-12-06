@@ -8,10 +8,6 @@
 
 <h2>User {{ user.username }}</h2>
 
-{% for message in get_flashed_messages() %}
-<p class="info">{{ message }}</p>
-{% endfor %}
-
 {% if user.has_image %}
 <img src="/image/{{ user.id }}" alt="User {{ user.username }} image">
 {% endif %}

@@ -8,10 +8,6 @@
 
 <h2>Create New Dataset</h2>
 
-{% for message in get_flashed_messages() %}
-<p class="info">{{ message }}</p>
-{% endfor %}
-
 <form action="/new_dataset" method="post">
   <p>
     <label for="title">Name</label>:<br />

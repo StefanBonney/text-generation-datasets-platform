@@ -32,6 +32,14 @@
   </div>
 
   <div class="content">
+  {% for message in get_flashed_messages() %}
+    {% if message.startswith('ERROR') %}
+      <div class="flash-error">{{ message }}</div>
+    {% else %}
+      <div class="flash-success">{{ message }}</div>
+    {% endif %}
+    {% endfor %}
+
     {% block content %}{% endblock %}
   </div>
 
