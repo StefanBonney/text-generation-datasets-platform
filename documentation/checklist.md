@@ -21,7 +21,6 @@ This section is a checkilst for the project developer to personally ensure that 
 - ✔️ Käyttäjä pystyy lisäämään tietokohteeseen toissijaisia tietokohteita    
     - Comments-taulu sisältää kommentit, joita voi lisätä/poistaa dataset-sivulla  
 
-
 #### Tekniset perusvaatimukset
 
 - ✔️ Sovellus toteutettu kurssimateriaalin mukaisesti  
@@ -77,6 +76,7 @@ This section is a checkilst for the project developer to personally ensure that 
 
 - ✔️ Vertaisarvoinnit  
     - Molemmat vertaisarvioinnit annettu Labtool-järjestelmässä  
+
 
 ### Lisävaatimukset (arvosana 4)
 
@@ -150,8 +150,8 @@ This section is a checkilst for the project developer to personally ensure that 
 
 #### Suuren tietomäärän käsittely
 
-- ❌ Sovellusta testattu suurella tietomäärällä ja raportoitu tulokset  
-    - ...  
+- ✔️ Sovellusta testattu suurella tietomäärällä ja raportoitu tulokset  
+    - scripts/performance_test.py luo 100 käyttäjää/500 datasettiä/50k riviä, mittaa GET/POST-operaatioita, tulokset documentation/performance-report.md. Lisäksi manuaalisesti testattu POST-operaatioita DevToolsilla ja tulokset merkity tiedostoon performance-report.md.
 - ✔️ Sovelluksessa käytössä tietokohteiden sivutus  
     - toteutus: Etusivu näyttää 10 datasettiä per sivu, navigointi <<, >>, LIMIT ja OFFSET SQL:ssä  
 - ✔️ Tietokantaan lisätty indeksi, joka nopeuttaa suuren tietomäärän käsittelyä  
