@@ -1,4 +1,9 @@
-# queries/comments.py
+"""
+FILE: queries/comments.py
+DESCRIPTION:
+Database queries for comment management.
+Handles comment creation, retrieval, and deletion for dataset discussions.
+"""
 
 from database import db
 
@@ -6,7 +11,7 @@ def add_comment(content, user_id, dataset_id):
     """
     Add a new comment to a dataset
     """
-    sql = """INSERT INTO comments (content, user_id, dataset_id) 
+    sql = """INSERT INTO comments (content, user_id, dataset_id)
              VALUES (?, ?, ?)"""
     db.execute(sql, [content, user_id, dataset_id])
 
@@ -44,4 +49,3 @@ def get_user_comment_count(user_id):
     """
     sql = "SELECT COUNT(*) FROM comments WHERE user_id = ?"
     return db.query(sql, [user_id])[0][0]
-

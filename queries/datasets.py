@@ -1,4 +1,9 @@
-# queries/datasets.py
+"""
+FILE: queries/datasets.py
+DESCRIPTION:
+Database queries for dataset management.
+Handles dataset CRUD operations, search, filtering, statistics, and line management.
+"""
 
 from database import db
 
@@ -9,7 +14,7 @@ def dataset_count():
     return db.query(sql)[0][0]
 
 def get_datasets(page, page_size):
-    sql = """SELECT d.id, d.title, d.description, d.user_id, u.username, 
+    sql = """SELECT d.id, d.title, d.description, d.user_id, u.username,
                     COUNT(l.id) total, MAX(l.added_at) last
              FROM datasets d
              LEFT JOIN dataset_lines l ON d.id = l.dataset_id
@@ -47,7 +52,7 @@ def get_dataset_stats(dataset_id):
     """
     Get statistics about the dataset
     """
-    sql = """SELECT 
+    sql = """SELECT
                 COUNT(*) as total_lines,
                 AVG(LENGTH(content)) as avg_length,
                 MIN(LENGTH(content)) as min_length,
@@ -106,13 +111,13 @@ def get_lines_filtered(dataset_id, filters, limit=None):
     base_sql = """SELECT l.id, l.content, l.added_at, l.user_id, u.username
                   FROM dataset_lines l, users u
                   WHERE l.user_id = u.id AND l.dataset_id = ?"""
-    
+
     if filters.get('alphanumeric_only'):
         base_sql += " AND l.content NOT GLOB '*[^a-zA-Z0-9 ]*'"
-    
+
     if filters.get('no_special_chars'):
         base_sql += " AND l.content NOT GLOB '*[^a-zA-Z0-9_-]*'"
-    
+
     length_filter = filters.get('length_filter')
     if length_filter == "short":
         base_sql += " AND LENGTH(l.content) < 20"
@@ -120,15 +125,15 @@ def get_lines_filtered(dataset_id, filters, limit=None):
         base_sql += " AND LENGTH(l.content) BETWEEN 20 AND 50"
     elif length_filter == "long":
         base_sql += " AND LENGTH(l.content) > 50"
-    
+
     if filters.get('random'):
         base_sql += " ORDER BY RANDOM()"
     else:
         base_sql += " ORDER BY l.id"
-    
+
     if limit:
         base_sql += f" LIMIT {limit}"
-    
+
     return db.query(base_sql, [dataset_id])
 
 
@@ -138,7 +143,6 @@ def get_all_tags():
     """
     Get all available tags
     """
-    from database import db
     sql = "SELECT id, name FROM tags ORDER BY name"
     return db.query(sql)
 
@@ -146,7 +150,6 @@ def get_dataset_tags(dataset_id):
     """
     Get tags for a specific dataset
     """
-    from database import db
     sql = """SELECT t.id, t.name
              FROM tags t
              JOIN dataset_tags dt ON t.id = dt.tag_id
@@ -158,7 +161,6 @@ def add_dataset_tag(dataset_id, tag_id):
     """
     Add a tag to a dataset (if not already present)
     """
-    from database import db
     sql = "INSERT OR IGNORE INTO dataset_tags (dataset_id, tag_id) VALUES (?, ?)"
     db.execute(sql, [dataset_id, tag_id])
 
@@ -166,6 +168,5 @@ def remove_dataset_tag(dataset_id, tag_id):
     """
     Remove a tag from a dataset
     """
-    from database import db
     sql = "DELETE FROM dataset_tags WHERE dataset_id = ? AND tag_id = ?"
     db.execute(sql, [dataset_id, tag_id])

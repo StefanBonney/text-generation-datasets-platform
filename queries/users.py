@@ -1,4 +1,9 @@
-# queries/users.py
+"""
+FILE: queries/users.py
+DESCRIPTION:
+Database queries for user management.
+Handles user creation, authentication, profile data retrieval, and statistics.
+"""
 
 from werkzeug.security import check_password_hash, generate_password_hash
 from database import db
@@ -48,7 +53,7 @@ def get_user_statistics(user_id):
     """
     Get statistics for user page
     """
-    sql = """SELECT 
+    sql = """SELECT
                 COUNT(DISTINCT d.id) as dataset_count,
                 COUNT(DISTINCT dl.id) as line_count,
                 CAST(COUNT(DISTINCT dl.id) AS FLOAT) / NULLIF(COUNT(DISTINCT d.id), 0) as avg_lines_per_dataset,

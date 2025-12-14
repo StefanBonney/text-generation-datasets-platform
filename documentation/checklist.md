@@ -134,10 +134,10 @@ This section is a checkilst for the project developer to personally ensure that 
 
 #### Ohjelmointityyli
 
-- ❌ Käytetty Pylint-työkalua ja raportoitu tulokset  
-    - ...  
-- ❌ Raportissa tulee näkyä Pylintin antama palaute sovelluksen lopullisesta versiosta  
-    - ...  
+- ✔️ Käytetty Pylint-työkalua ja raportoitu tulokset  
+    - Pylint-analyysi ajettu app.py:lle ja queries/-tiedostoille, tulokset raportoitu documentation/pylint-report.md-tiedostoon 
+- ✔️ Raportissa tulee näkyä Pylintin antama palaute sovelluksen lopullisesta versiosta  
+    - documentation/pylint-report.md sisältää Pylintin ilmoitukset kaikista tiedostoista ja selitykset miksi tiettyjä asioita ei korjattu 
 
 #### Toimivuus ja käytettävyys
 
